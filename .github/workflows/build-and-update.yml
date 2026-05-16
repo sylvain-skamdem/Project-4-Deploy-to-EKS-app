@@ -69,8 +69,8 @@ jobs:
       - name: Set up SSH key for manifest repo
         run: |
           mkdir -p ~/.ssh
-          echo "${{ secrets.MANIFEST_REPO_SSH_KEY }}" > ~/.ssh/id_rsa
-          chmod 600 ~/.ssh/id_rsa
+          echo "${{ secrets.MANIFEST_REPO_SSH_KEY }}" > ~/.ssh/id_ed25519
+          chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan github.com >> ~/.ssh/known_hosts
 
       - name: Clone manifest repo
@@ -88,5 +88,6 @@ jobs:
           git config user.email "github-actions@github.com"
           git config user.name "GitHub Actions"
           git add helm/lumiatech/values.yaml
+          git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "ci: update image tags to ${{ needs.build-and-push.outputs.short_sha }}"
           git push
