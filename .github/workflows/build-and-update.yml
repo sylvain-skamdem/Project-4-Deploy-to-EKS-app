@@ -7,7 +7,7 @@ on:
 env:
   APP_IMAGE: ndzenyuy/lumia-app
   DB_IMAGE: ndzenyuy/lumia-db
-  MANIFEST_REPO: git@github.com:Ndzenyuy/Project-4-Deploy-to-EKS-manifest.git
+  MANIFEST_REPO: git@github.com:Ndzenyuy/Project-4-Deploy-to-EKS-manifest-forked.git
 
 jobs:
   build-and-push:
@@ -91,4 +91,4 @@ jobs:
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "ci: update image tags to ${{ needs.build-and-push.outputs.short_sha }}"
           git push
-          
+
