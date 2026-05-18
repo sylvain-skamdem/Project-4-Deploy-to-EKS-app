@@ -2,7 +2,11 @@
   "permissions": {
     "allow": [
       "Bash(git remote *)",
-      "Bash(git fetch *)"
+      "Bash(git fetch *)",
+      "Bash(mkdir -p \"c:\\\\Users\\\\PC\\\\Desktop\\\\Cloud Computing\\\\project 4\\\\Project-4-Deploy-to-EKS-app\\\\Project-4-Deploy-to-EKS-app\\\\eks setup\")"
+    ],
+    "additionalDirectories": [
+      "c:\\Users\\PC\\Desktop\\Cloud Computing\\project 4\\Project-4-Deploy-to-EKS-app\\Project-4-Deploy-to-EKS-app"
     ]
   }
 }
