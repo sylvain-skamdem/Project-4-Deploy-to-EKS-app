@@ -91,3 +91,4 @@ jobs:
           git diff --cached --quiet && echo "No changes to commit" && exit 0
           git commit -m "ci: update image tags to ${{ needs.build-and-push.outputs.short_sha }}"
           git push
+          
