@@ -285,28 +285,38 @@ kubectl get nodes
 
 ### Step 8 — Install the AWS EBS CSI Driver
 
-EKS clusters do not include the EBS CSI driver by default. Without it, PersistentVolumeClaims — such as the MySQL data volume — will stay in `Pending` forever and the database pod will not start.
+Both of these must be in place before deploying the application.
+
+### 8a. NGINX Ingress Controller
 
 ```bash
-bash "eks setup/01b-install-ebs-csi-driver.sh"
-# or with custom cluster/region:
-bash "eks setup/01b-install-ebs-csi-driver.sh" lumiatechs-eks-cluster us-east-1
+kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v1.8.1/deploy/static/provider/aws/deploy.yaml
+
+# Wait until the controller pod is running
+kubectl wait --namespace ingress-nginx \
+  --for=condition=ready pod \
+  --selector=app.kubernetes.io/component=controller \
+  --timeout=120s
+
+# Confirm a Load Balancer hostname has been assigned
+kubectl get svc ingress-nginx-controller -n ingress-nginx
 ```
 
-The script does three things:
+The `EXTERNAL-IP` column will show an AWS NLB hostname — note this for later.
 
-1. Associates an IAM OIDC provider with the cluster (required for IAM Roles for Service Accounts)
-2. Creates the `AmazonEKS_EBS_CSI_DriverRole` IAM role with the AWS-managed `AmazonEBSCSIDriverPolicy`
-3. Installs the `aws-ebs-csi-driver` EKS managed add-on and waits for it to be Ready
+### 8b. AWS EBS CSI Driver
 
-Verify it is running:
+Required for the MySQL PersistentVolumeClaim to bind. Without it the database pod will stay in `Pending` forever.
 
 ```bash
+bash eks-setup/install-ebs-csi.sh
+
+# Verify the driver pods are running
 kubectl get pods -n kube-system -l app.kubernetes.io/name=aws-ebs-csi-driver
+
+# Verify the gp2 storage class is available
 kubectl get storageclass
 ```
-
-You should see a `gp2` (or `gp3`) storage class listed. PVCs that reference it will now be provisioned automatically.
 
 ---
 
@@ -354,10 +364,10 @@ Once `EXTERNAL-IP` shows a hostname, open it in your browser:
 ```bash
 ARGOCD_HOST=$(kubectl get svc argocd-server -n argocd \
   -o jsonpath='{.status.loadBalancer.ingress[0].hostname}')
-echo "https://${ARGOCD_HOST}"
+echo "http://${ARGOCD_HOST}"
 ```
 
-Open `https://<EXTERNAL-IP-or-hostname>` and log in with username `admin` and the password retrieved above.
+Open `http://<EXTERNAL-IP-or-hostname>` and log in with username `admin` and the password retrieved above.
 
 ---
 
